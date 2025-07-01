@@ -1,4 +1,3 @@
-import re
 import requests
 from requests.exceptions import MissingSchema
 
@@ -9,9 +8,17 @@ import pymupdf4llm
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 
 class ArticleReader:
-    
+    """Class to reading articles from arxive or from drive
+    """
     def __init__(self, link):
-        
+        """
+
+        Parameters
+        ----------
+        link : str or path-like
+            Link to the article. It can be url to article hosted on arxive
+            or path to file in local drive
+        """
         self.link=link
         self._page = None
         
@@ -36,12 +43,13 @@ class ArticleReader:
         self._page = requests.get(self.link)
     
     def read_pdf(self):
-        
+        """Method reads pdf an transform it into markdown 
+        """
         if self._page is not None:
             
             data = self._page.content 
             self.document = pymupdf.Document(stream=data)
-        
+    
         else:
             
             pass
