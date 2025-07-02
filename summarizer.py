@@ -1,12 +1,14 @@
+from transformers import pipeline
 class Summarizer:
-    
+    """Class generating summarizations
+    """
     def __init__(self, text, max_chars=1500):
         
         self.text = text 
         self.max_chars = max_chars
-        self._chunk()
+        self._chunk(max_chars)
         
-    def _chunk(self):
+    def _chunk(self, max_chars):
         
         chunks = []
         current = ''
@@ -14,7 +16,7 @@ class Summarizer:
         
         for sentence in splitted:
             
-            if len(current) + len(sentence):
+            if len(current) + len(sentence) <= max_chars:
                 
                 current += sentence + ". "
                 
@@ -23,7 +25,6 @@ class Summarizer:
                 chunks.append(current.strip())
                 current = sentence + ". "
                 
-            chunks.append(current.strip())
         
         self.chunks = chunks
         
