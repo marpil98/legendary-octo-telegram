@@ -49,6 +49,4 @@ class Translator:
         )
         self.translated = self.tokenizer.batch_decode(
             generated_tokens, skip_special_tokens=True)[0]
-        
-        print("Tłumaczenie: \n", self.translated)
-        
+                

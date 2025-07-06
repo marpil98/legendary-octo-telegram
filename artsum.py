@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from translator import Translator
 from summarizer import Summarizer
 from analyzer import TextAnalyzer
@@ -26,12 +28,12 @@ class ArticleSummarizer:
             summarizer = Summarizer(self.analyzer.sections[i])
             self.summs[i] = summarizer.summarize()
             
-    def summarize(self):
+    def summarize(self, max_length=250, min_length=150):
         
         self._sum_parts()
         summaries = '. '.join(list(self.summs.values()))
         summarizer = Summarizer(summaries)
-        self.summary = summarizer.summarize()
+        self.summary = summarizer.summarize(min_length=min_length, max_length=max_length)
         
     def _translate(self, text, src_lang="eng_Latn", tgt_lang="pol_Latn", model=model_path):
         
@@ -55,5 +57,50 @@ class ArticleSummarizer:
         for i in self.summs:
         
             self.translations[self._translate(i)] = self._translate_part(i)
+            
+    def display(self):
+        
+        print("Artykuł: ", self.analyzer.title)
+        print("Tłumaczenie podsumowania: \n", self.translation_all)
+        
+        for i in self.summs:
+
+            print(f"Tłumaczenie sekcji {i}: \n", self._translate_part(i))
     
+class ArticleTranslator:
     
+    def __init__(self, article_link):
+        
+        self.link = article_link
+        self.article = ArticleReader(self.link).read_pdf()
+        self.analyzer = TextAnalyzer(self.article)
+        
+        self._splitting()
+        
+    def _splitting(self):
+        
+        self.analyzer.split_by_heads()
+        
+    def translate_all(self):
+        
+        set_trans = {}
+        set_trans["Tytuł"] = Translator().translate(self.analyzer.title)
+        set_trans["Abstrakt"] = Translator().translate(self.analyzer.abstract)
+        
+        for i in tqdm(self.analyzer.sections):
+            
+            print(f"Tłumaczę sekcję {i}")
+            set_trans[i] = Translator().translate(self.analyzer.sections[i])
+        
+        self.translations = set_trans
+        
+
+    def display(self):
+        
+        print("Artykuł: ", self.translations['Tytuł'])
+    
+        for i in self.translations:
+            
+            if i != 'Tytuł':
+            
+                print(f"Tłumaczenie sekcji {i}: \n", self.translations[i])

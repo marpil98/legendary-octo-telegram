@@ -1,4 +1,14 @@
 import re
+from collections import OrderedDict
+
+def rename_key_ordereddict(odict, old_key, new_key):
+    """Zamienia klucz w OrderedDict, zachowując kolejność."""
+    items = list(odict.items())
+    for idx, (k, v) in enumerate(items):
+        if k == old_key:
+            items[idx] = (new_key, v)
+            break
+    return OrderedDict(items)
 
 class TextAnalyzer:
     
@@ -18,7 +28,9 @@ class TextAnalyzer:
         pattern = r'^\*\*(.+?)\*\*\s*$'
         matches = list(re.finditer(pattern, self.file, re.MULTILINE))
         
-        sections = {}
+        title_pattern = r'^\#\#(.+?)\*\*\s*$'
+        self.title = list(re.finditer(title_pattern, self.file, re.MULTILINE))[0].group(1).strip()
+        sections = OrderedDict()
         
         for i, match in enumerate(matches):
             
@@ -55,6 +67,7 @@ class TextAnalyzer:
             sections[i] = self._remove_index_ref(sections[i])
             
         self.sections = sections
+        self._clear_sections()
         
     def _fid_part(self, sections, name):
         
@@ -89,3 +102,22 @@ class TextAnalyzer:
                 app_heads.append(i)
                 
         self._app_headers = app_heads
+
+    def _clear_sections(self):
+        
+        header = ''
+            
+        for i in self.sections.copy():
+            
+            if header == '':
+                
+                if self.sections[i] == '':
+                    
+                    header = i
+                    self.sections.pop(i)
+            else:
+                
+                new_header = header + '\n' + i
+                self.sections = rename_key_ordereddict(self.sections, i, new_header)
+                header = ''
+        
