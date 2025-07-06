@@ -5,7 +5,9 @@ from bs4 import BeautifulSoup as bs
 import pymupdf
 import pymupdf4llm
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline, logging
+logging.set_verbosity_error()
+logging.set_verbosity_warning()
 
 class ArticleReader:
     """Class to reading articles from arxive or from drive
@@ -65,7 +67,9 @@ class ArticleReader:
             self._connect_text()
             print("Załadowano zwykły tekst")
             self._markdown = 0
-            
+        
+        return self.text
+    
     def _connect_text(self):
         
         text = ''

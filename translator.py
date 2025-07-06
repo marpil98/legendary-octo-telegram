@@ -6,7 +6,7 @@ class Translator:
     def __init__(self, 
                 src_lang="eng_Latn", 
                 tgt_lang="pol_Latn", 
-                model="facebook/nllb-200-distilled-600M"
+                model="translation/nllb-200-distilled-600M"
                 ):
         """
 
@@ -29,7 +29,7 @@ class Translator:
         self.translator = AutoModelForSeq2SeqLM.from_pretrained(self._model_link)
         self.tokenizer.src_lang = self.src_lang
         
-    def translation(self, text):
+    def translate(self, text):
         
         """Method which genrate translattion
         
@@ -51,3 +51,4 @@ class Translator:
             generated_tokens, skip_special_tokens=True)[0]
         
         print("Tłumaczenie: \n", self.translated)
+        
