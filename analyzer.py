@@ -12,9 +12,10 @@ def rename_key_ordereddict(odict, old_key, new_key):
 
 class TextAnalyzer:
     
-    def __init__(self, file):
+    def __init__(self, file, max_length=512):
         
         self.file = file
+        self.max_length = max_length
     
     def _remove_index_ref(self, text):
         
@@ -22,7 +23,41 @@ class TextAnalyzer:
         text = re.sub(pattern=pattern, repl='', string=text)
         
         return text
+    
+    def _split_fraze(self, fraze):
         
+        d = (len(fraze) // 1024)
+        subfrazes = []
+        
+        if d > 0:
+            
+            l = len(fraze) // d            
+            
+            for i in range(l):
+            
+                subfrazes.append(fraze[i * l : (i + 1) * l])
+                
+            subfrazes.append(fraze[(i + 1) * d:])
+        
+        else:
+            
+            subfrazes.append(fraze)
+            
+        return subfrazes
+    
+    def _split_by_length(self, text):
+            
+        text = text.replace('\n', ' ').replace('\t', ' ')
+        splitted = text.split('. ')
+        parts = []
+        
+        for i in splitted:
+            
+            parts += self._split_fraze(i)
+        
+        
+        return parts
+    
     def split_by_heads(self):
         
         pattern = r'^\*\*(.+?)\*\*\s*$'
@@ -39,6 +74,7 @@ class TextAnalyzer:
             title = match.group(1).strip('# ').strip()
 
             body = self.file[start:end].strip()
+            body.replace('\n', ' ').replace('\t', ' ')
             sections[title] = body
         
         self._part_dict = {}
@@ -64,7 +100,7 @@ class TextAnalyzer:
         
         for i in sections:
             
-            sections[i] = self._remove_index_ref(sections[i])
+            sections[i] = self._split_by_length(self._remove_index_ref(sections[i]))
             
         self.sections = sections
         self._clear_sections()

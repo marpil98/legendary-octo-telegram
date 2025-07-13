@@ -38,15 +38,24 @@ class Translator:
         text : str
             Oryginall text whitch will be translated
         """
-        self._model_init()
-        inputs = self.tokenizer(text, return_tensors="pt")
-        forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(
-            self.tgt_lang
-        )
-        generated_tokens = self.translator.generate(
-            **inputs,
-            forced_bos_token_id=forced_bos_token_id
-        )
-        self.translated = self.tokenizer.batch_decode(
-            generated_tokens, skip_special_tokens=True)[0]
+        if type(text) == list:
+            
+            self._model_init()
+            inputs = [self.tokenizer(t, return_tensors="pt") for t in text]
+                
+            forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(
+                self.tgt_lang
+            )
+            
+            gt = [self.translator.generate(
+                **inp,
+                forced_bos_token_id=forced_bos_token_id
+            ) for inp in inputs]
+            
+            self.translated = '. '.join([self.tokenizer.batch_decode(
+                tokens, skip_special_tokens=True)[0] for tokens in gt])
+        
+        else:
+            
+            print("Należy przekazać listę textów!")
                 

@@ -58,6 +58,7 @@ class Summarizer:
         else:
             
             self.summary = summaries[0]
+            
         return self.summary
     
     def _sum_if_len(self, text, min ,max, model):

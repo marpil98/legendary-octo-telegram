@@ -84,13 +84,29 @@ class ArticleTranslator:
     def translate_all(self):
         
         set_trans = {}
-        set_trans["Tytuł"] = Translator().translate(self.analyzer.title)
-        set_trans["Abstrakt"] = Translator().translate(self.analyzer.abstract)
+        
+        def tlumaczenie(text):
+            
+            t = Translator()
+            t.translate(text=text)
+            return t.translated
+        
+        set_trans["Tytuł"] = tlumaczenie([self.analyzer.title])
+        set_trans["Abstrakt"] = tlumaczenie([self.analyzer.abstract])
         
         for i in tqdm(self.analyzer.sections):
             
             print(f"Tłumaczę sekcję {i}")
-            set_trans[i] = Translator().translate(self.analyzer.sections[i])
+            t = tlumaczenie(self.analyzer.sections[i])
+            if len(t) > 1:
+                
+                t = '. '.join(t)
+                
+            else:
+                
+                t = t[0]
+                
+            set_trans[i] = tlumaczenie(self.analyzer.sections[i])
         
         self.translations = set_trans
         
