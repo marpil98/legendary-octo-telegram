@@ -4,6 +4,8 @@ from translator import Translator
 from summarizer import Summarizer
 from analyzer import TextAnalyzer
 from reader import ArticleReader
+
+import pymupdf as pm
 model_path = "/home/marcinpielwski/LLMs/HFCert/translation/nllb-200-distilled-600M"
 class ArticleSummarizer:
     
@@ -120,3 +122,60 @@ class ArticleTranslator:
             if i != 'Tytuł':
             
                 print(f"Tłumaczenie sekcji {i}: \n", self.translations[i])
+                
+class PDFGenerator():
+    
+    def __init__(self):
+        
+        self.doc = pm.open() 
+    
+    def _insert_text(self, text):
+        
+        p = pm.Point(75, 80)
+        page = self.doc[-1]
+        rect = pm.Rect(50, 200, 500, 800)
+        page.insert_htmlbox(
+            rect,
+            text,
+            css="*{font-family: sans-serif; font-size:14px}"
+        )
+        # page.insert_text(p,  # bottom-left of 1st char
+        #     text,  # the text (honors '\n')
+        #     fontname = "helv",  # the default font
+        #     fontsize = 11,  # the default font size
+        #     rotate = 0,  # also available: 90, 180, 270
+        #     )
+
+    def _insert_header(self, header):
+        
+        page = self.doc.new_page()
+        rect = pm.Rect(50, 60, 400, 200)
+        header = header.replace("**", "")
+        page.insert_htmlbox(
+            rect,
+            header,
+            css="*{font_family: sans-serif; font-size:20px}"
+        )
+        # page.insert_text(p,
+        #     header,
+        #     fontname='hebo',
+        #     fontsize=20,
+        #     rotate=0
+        # )
+    
+    def _generate_page(self, header, text):
+        
+        self._insert_header(header)
+        self._insert_text(text)
+        
+    def generate_pdf(self, translator):
+        
+        sections = translator.translations
+        
+        for i in sections:
+            
+            self._generate_page(i, sections[i])
+            
+    def save(self, name="Untitled_pdf.pdf"):    
+        
+        self.doc.save(name)

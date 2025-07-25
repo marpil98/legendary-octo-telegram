@@ -1,5 +1,6 @@
 import re
 from collections import OrderedDict
+from pprint import pprint
 
 def rename_key_ordereddict(odict, old_key, new_key):
     """Zamienia klucz w OrderedDict, zachowując kolejność."""
@@ -57,10 +58,20 @@ class TextAnalyzer:
         
         
         return parts
-    
+    def _clean_sections_keys(self, sections):
+        
+        new = OrderedDict()
+        chars = r'[^a-zA-Z]'
+        
+        for i in sections.keys():
+            
+            new[re.sub(chars, '', i)] = sections[i]
+            
+        return new
+            
     def split_by_heads(self):
         
-        pattern = r'^\*\*(.+?)\*\*\s*$'
+        pattern = r'^\*\*(.+?)\*\*\s'
         matches = list(re.finditer(pattern, self.file, re.MULTILINE))
         
         title_pattern = r'^\#\#(.+?)\*\*\s*$'
@@ -77,9 +88,13 @@ class TextAnalyzer:
             body.replace('\n', ' ').replace('\t', ' ')
             sections[title] = body
         
+        sections = self._clean_sections_keys(sections)
+        
+        pprint(sections.keys())
         self._part_dict = {}
         
         self._fid_part(sections, "abstract")
+        pprint(self._part_dict)
         self.abstract = sections[self._part_dict['abstract']]
         sections.pop(self._part_dict['abstract'])
         

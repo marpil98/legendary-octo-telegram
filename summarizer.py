@@ -16,6 +16,7 @@ class Summarizer:
         splitted = self.text.split('.')
         
         for sentence in splitted:
+            
             added = 0
             if len((current + ' ' + sentence).split(' ')) <= max_words:
                 

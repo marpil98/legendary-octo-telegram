@@ -59,6 +59,10 @@ class ArticleReader:
         try:
             
             self.text = pymupdf4llm.to_markdown(self.document)
+            with open('temp/art.txt', 'w', encoding='utf-8') as file:
+                
+                file.write(self.text)
+                
             print("Załadowano plik do markdown")
             self._markdown = 1
             
