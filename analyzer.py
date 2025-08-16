@@ -71,7 +71,7 @@ class TextAnalyzer:
             
     def split_by_heads(self):
         
-        pattern = r'^\*\*(.+?)\*\*\s'
+        pattern = r'\*\*(.+?)\*\*\s'
         matches = list(re.finditer(pattern, self.file, re.MULTILINE))
         
         title_pattern = r'^\#\#(.+?)\*\*\s*$'
@@ -98,14 +98,26 @@ class TextAnalyzer:
         self.abstract = sections[self._part_dict['abstract']]
         sections.pop(self._part_dict['abstract'])
         
-        self._fid_part(sections, "keywords")
-        self.keywords = sections[self._part_dict['keywords']]
-        sections.pop(self._part_dict['keywords'])
+        finded = self._fid_part(sections, "keywords")
         
-        self._fid_part(sections, "references")
-        self.ref = sections[self._part_dict['references']]
-        sections.pop(self._part_dict['references'])
+        if finded:
+            
+            self.keywords = sections[self._part_dict['keywords']]
+            sections.pop(self._part_dict['keywords'])
         
+        finded_ref = self._fid_part(sections, "references")
+        
+        if finded_ref:
+            
+            self.ref = sections[self._part_dict['references']]
+            sections.pop(self._part_dict['references'])
+            
+        else:
+            
+            self._fid_part(sections, "bibliography")
+            self.ref = sections[self._part_dict['bibliography']]
+            sections.pop(self._part_dict['bibliography'])
+            
         del self._part_dict
         
         self._find_appendixes(sections=sections)
@@ -132,10 +144,12 @@ class TextAnalyzer:
         try:
             
             self._part_dict[name]
+            return 1
             
         except:
             
             print(f"Nie odnaleziono w tekście częśći: {name}")
+            return 0
         
     def _find_appendixes(self, sections):
         
